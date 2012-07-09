@@ -1,0 +1,356 @@
+\documentclass[xcolor=dvipsnames,handout]{beamer}
+
+\usepackage{concrete}
+
+\setbeamertemplate{navigation symbols}{} 
+\usecolortheme[named=Black]{structure}
+\usepackage{stmaryrd}
+
+\usepackage[noxy,lutzsyntax]{virginialake}
+
+\title[Atomic Terms]{A Tentative Atomic Term Calculus for Natural Deduction}
+
+\author
+{
+Tom~Gundersen
+\\
+Michel~Parigot
+}
+
+\date{\Universit{\"a}t Bern\\December 1, 2011}
+
+\begin{document}
+
+\begin{frame}
+\titlepage
+\end{frame}
+
+\newtheorem{proposition}[theorem]{Proposition}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\ttt}{\mathsf{t}}
+\newcommand{\fff}{\mathsf{f}}
+
+%\renewcommand{\vlhole}{\{\cdot\}}
+
+\vlupdate{\smash}
+
+\vlnosmallleftlabels
+
+
+\vlupdate\frame
+
+
+
+\newcommand{\FV}{\mathop{FV}}
+\newcommand{\Var}{\mathop{Var}}
+
+\frame{
+  \frametitle{Terms}
+  \[
+    \begin{array}{lr}
+      x & \\
+      \lambda x.u & x\in\FV(u) \\
+      (u)t & \Var(u)\cap\Var(t)=\emptyset \\
+\pause
+      u[\leftarrow t] & \Var(u)\cap\Var(t)=\emptyset \\
+      u[x,y\leftarrow t] & \Var(u)\cap\Var(t)=\emptyset, x,y\in\FV(u) \\
+\pause
+      \epsilon & \\
+      \langle u,v\rangle & \Var(u)\cap\Var(t)=\emptyset \\
+    \end{array}
+  \]
+}
+
+\frame{
+  \frametitle{Congruence of Terms}
+  \[
+    \begin{array}{l}
+      u[\leftarrow t_1][\leftarrow t_2] \equiv u[\leftarrow t_2][\leftarrow t_1] \\
+      u[x_1,y_1\leftarrow t_1][\leftarrow t_2] \equiv u[\leftarrow t_2][x_1,y_1\leftarrow t_1] \\
+      u[x_1,y_1\leftarrow t_1][x_2,y_2\leftarrow t_2] \equiv u[x_2,y_2\leftarrow t_2][x_1,y_1\leftarrow t_1] \\
+      u[x,y\leftarrow z][z,q\leftarrow t] \equiv u[x,q\leftarrow z][z,y\leftarrow t]
+    \end{array}
+  \]
+  where $x_1,y_1\not\in\FV(t_2)$ and $x_2,y_2\not\in\FV(t_1)$.
+}
+
+\frame{
+  \frametitle{Projections of Terms}
+  \[
+    \begin{array}{cc}
+      \pi_1(x)=x & \pi_2(x)=x \\
+      \pi_1(\lambda x.u) = \lambda x.\pi_1(u) & \pi_2(\lambda x.u) = \lambda x.\pi_2(u) \\
+      \pi_1(u)t = (\pi_1(u))\pi_1(t) & \pi_2(u)t = (\pi_2(u))\pi_2(t) \\
+      \pi_1(u[\leftarrow t])=\pi_1(u)[\leftarrow t] & \pi_2(u[\leftarrow t])=\pi_2(u)[\leftarrow t] \\
+      \pi_1(u[x,y\leftarrow t])=\pi_1(u)[x,y\leftarrow t] & \pi_2(u[x,y\leftarrow t])=\pi_2(u)[x,y\leftarrow t] \\
+      \pi_1(\epsilon)=\epsilon & \pi_2(\epsilon)=\epsilon\\
+    \pause
+      \pi_1(\langle u,v\rangle)=u[\leftarrow x_1]\cdots [\leftarrow x_n]& \pi_2(\langle u,v\rangle)=v[\leftarrow y_1]\cdots [\leftarrow y_m] \\
+    \end{array}
+  \]
+  where $\{x_1,\dots,x_n\}=\FV(v)$ and $\{y_1,\dots,y_m\}=\FV(u)$.
+}
+
+\frame{
+  \frametitle{Denotation}
+  \begin{itemize}
+    \item $\llbracket x\rrbracket=x$
+    \item $\llbracket\lambda x.u\rrbracket=\lambda x.\llbracket u\rrbracket$
+    \item $\llbracket(u)t\rrbracket = (\llbracket u\rrbracket)\llbracket t\rrbracket$
+  \pause
+    \item $\llbracket u[\leftarrow t]\rrbracket = \llbracket u\rrbracket$
+    \item $\llbracket u[x,y\leftarrow t]\rrbracket = \llbracket u\rrbracket\{x\leftarrow\llbracket \pi_1(t)\rrbracket, y\leftarrow\llbracket \pi_2(t)\rrbracket\}$
+  \end{itemize}
+}
+
+\frame{
+  \frametitle{Types}
+  \[
+    \begin{array}{c@{\qquad}c@{\qquad}c@{\qquad}c}
+      a
+    &
+      \vls[A\vlim B]
+    &
+      \vls(A.B)
+    &
+      \top\quad,
+    \end{array}
+  \]
+where $\vls(A.B)$ and $\top$ may not occur to the left of an implication.
+\pause
+  \[
+    \begin{array}{c@{\qquad}c@{\qquad}c}
+      \vls((A.B).C) \equiv \vls(A.(B.C))
+    &
+      \vls(A.B) \equiv \vls(B.C)
+    &
+      \vls(A.\top) \equiv A
+    \end{array}
+  \]
+}
+
+\frame{
+  \frametitle{Projections of Types}
+  \[
+    \begin{array}{cc}
+      \pi_1(a)=a & \pi_2(a)=a \\
+      \pi_1(A\vlim B) = A\vlim \pi_1(B) & \pi_2(A\vlim B) = A\vlim \pi_2(B) \\
+      \pi_1(\top)=\top & \pi_2(\top)=\top \\
+    \pause
+      \pi_1(\vls(A.B))=A & \pi_2(\vls(A.B))=B \\
+    \end{array}
+  \]
+}
+
+\frame{
+  \frametitle{Typing in Natural Deduction in Sequent Style}
+  \[
+    \vlinf{}{}{x:A\vdash x:A}{}
+  \]
+  \[
+    \begin{array}{c@{\qquad}c}
+      \vlderivation{\vlin{}{}{\Gamma\vdash\lambda x.u:A\rightarrow B}{\vlpr{}{}{\Gamma,x:A\vdash u:B}}} &
+      \vlderivation{\vliin{}{}{\Gamma,\Delta\vdash(u)t:B}{\vlpr{}{}{\Gamma\vdash A:t}}{\vlpr{}{}{\Delta\vdash A\rightarrow B:u}}} \\
+\pause
+      \vlderivation{\vlin{}{}{\Gamma,x:A\vdash u[\leftarrow \alert{x}]:B}{\vlpr{}{}{\Gamma\vdash u:B}}} &
+      \vlderivation{\vlin{}{}{\Gamma,x:A\vdash u[x,y\leftarrow \alert{x}]:B}{\vlpr{}{}{\Gamma,y:A,z:A\vdash u:B}}} \\
+\pause
+      \vlinf{}{}{\vdash\epsilon:\top}{} &
+      \vlderivation{\vliin{}{}{\Gamma,\Delta\vdash\langle u,v\rangle:\vls(A.B)}{\vlpr{}{}{\Gamma\vdash A:u}}{\vlpr{}{}{\Delta\vdash B:v}}} \\
+    \end{array}
+  \]
+}
+
+\frame{
+  \frametitle{Open Deduction}
+  \[
+    \begin{array}{c@{\qquad}c}
+      \vlinf{}{}{\vls[A\vlim(A.\Gamma)]}{\Gamma}
+    &
+      \vlinf{}{}{B}{\vls(A.[A\vlim B])}
+    \\
+      \vlinf{}{}{\top}{a}
+    &
+      \vlinf{}{}{\top}{A\vlim\top}
+    \\
+      \vlinf{}{}{\vls(a.a)}{a}
+    &
+      \vlinf{}{}{\vls([A\vlim B].[A\vlim C])}{A\vlim\vls(B.C)}
+    \end{array}
+  \]
+  \pause
+  \[
+    \begin{array}{c@{\qquad}c@{\qquad}c}
+      \vls(\vlder{}{}{C}{A}.\vlder{}{}{D}{B})
+    &
+      \vls[A\vlim \vlder{}{}{C}{B}]
+    &
+      \vlderivation{\vlde{}{}{C}{\vlde{}{}{B}{\vlhy{A}}}}
+    \end{array}
+  \]
+}
+
+\frame{
+\frametitle{Typing}
+\begin{itemize}
+ \item $x$:
+    \[
+     A^x\qquad\mbox{where}\quad A:=a\;|\;A\vlim A
+    \]
+\pause
+ \item $\lambda x.u$:
+    \[
+      \vlinf{}{}{\vls[A^x\;\;\vlim\;\;\vlder{}{u}{B}{\vls(A.\Gamma)}]}{\Gamma}
+    \]
+\pause
+  \item $(u)t$:
+    \[
+      \vlinf{}{}{B}{\vls(\vlder{}{t}{A}{\Gamma}\;\;.\;\;\vlder{}{u}{\vls[A\vlim B]}{\Delta})}
+    \]
+\end{itemize}
+}
+
+\frame{
+\frametitle{Typing}
+\begin{itemize}
+  \item $u[\leftarrow t]$:
+    \[
+      \vlder{}{u}{B}{\vlsbr(\vlderivation{\vliq{}{}{\top}{\vlde{}{t}{A}{\vlhy{\Gamma}}}}\;\;.\;\;\Delta)}
+    \]
+\pause
+  \item $u[x,y\leftarrow t]$:
+    \[
+      \vlder{}{u}{B}{\vlsbr(\vlderivation{\vliq{}{}{\vls(\pi_1(A)^x.\pi_2(A)^y)}{\vlde{}{t}{A}{\vlhy{\Gamma}}}}\;\;.\;\;\Delta)}
+    \]
+\end{itemize}
+}
+
+\frame{
+\frametitle{Typing}
+\begin{itemize}
+  \item $\epsilon$:
+    \[
+      \top
+    \]
+\pause
+  \item $\langle u,v \rangle$:
+    \[
+      \vls(\vlder{}{u}{C}{A}\;\;.\;\;\vlder{}{v}{D}{B})
+    \]
+\end{itemize}
+}
+
+\frame{
+\frametitle{$\beta$-reduction}
+\begin{itemize}
+ \item $(\lambda x.u)t \rightsquigarrow_\beta \pause u\{x\leftarrow t\}$
+\end{itemize}
+\pause
+\begin{lemma}
+ If $u\rightsquigarrow_\beta v$, then $\llbracket u\rrbracket \rightsquigarrow_\beta \llbracket v\rrbracket$.
+\end{lemma}
+}
+
+\frame{
+\frametitle{Overview of Reduction}
+\begin{itemize}
+ \item $u[\leftarrow t] \rightsquigarrow^\star \pause u[\leftarrow x_1]\cdots[\leftarrow x_n]$, where $\{x_1,\dots,x_n\}=\FV(t)$
+\pause
+ \item $u[x,y\leftarrow t] \rightsquigarrow^\star \pause u\{x\leftarrow \pi_1(t')\}\{y\leftarrow \pi_2(t'')\}\newline
+[x_1,y_1\leftarrow z_1]\cdots[x_m,y_m\leftarrow z_m][\leftarrow z_{m+1}]\cdots[\leftarrow z_n]$,\newline
+\pause where $\{x_1,\dots,x_m\}=\FV(t')$, $\{y_1,\dots,y_m\}=\FV(t'')$ and $\{z_1,\dots,z_n\}=\FV(t)$,\pause
+and where $t=_\alpha t'=_\alpha t''$\pause and we consider $t[\leftarrow x]=_\alpha t$
+\end{itemize}
+\begin{lemma}
+ If $u\rightsquigarrow v$, then $\llbracket u\rrbracket = \llbracket v\rrbracket$
+\end{lemma}
+\begin{theorem}
+ The reduction $\rightsquigarrow$ is strongly normalising.
+\end{theorem}
+}
+
+\newcommand{\emptyt}{\mathop{empty}}
+\newcommand{\pair}{\mathop{pair}}
+
+\frame{
+\frametitle{Abstraction Reductions}
+$\emptyt := \epsilon\;|\;\emptyt[\leftarrow t]\;|\;\emptyt[x,y\leftarrow t]$
+$\pair := \langle u,v\rangle\;|\;\pair[\leftarrow t]\;|\;\pair[x,y\leftarrow t]$
+\begin{itemize}
+ \item $u[\leftarrow \lambda x.t] \rightsquigarrow \pause u[\leftarrow \lambda x.\epsilon[\leftarrow t]]$, if $t$ is not empty
+\pause
+ \item $u[z_1,z_2\leftarrow \lambda y.t] \rightsquigarrow\pause u[z_1,z_2\leftarrow \lambda y.\langle x_1,x_2\rangle[x_1,x_2\leftarrow t]]$, if $t$ is not a pair.
+\pause
+ \item $\lambda x.(u[\leftarrow y]) \rightsquigarrow \pause (\lambda x.u)[\leftarrow y]$, if $x\neq y$
+\pause
+ \item $\lambda x.(u[y_1,y_2\leftarrow y]) \rightsquigarrow\pause (\lambda x.u)[y_1,y_2\leftarrow y]$, if $x\neq y$
+\pause
+ \item $u[\leftarrow (\lambda x.\epsilon[\leftarrow x])] \rightsquigarrow \pause u$
+\pause
+ \item $u[x_1,x_2\leftarrow (\lambda y.\langle t_1,t_2\rangle[y_1,y_2\leftarrow y])] \rightsquigarrow\pause\newline u\{x_1\leftarrow \lambda y_1.t_1, x_2\leftarrow \lambda y_2.t_2\}$ where $y_1\in\FV(t_1)$ and $y_2\in\FV(t_2)$
+\pause
+ \item $u[x_1,x_2\leftarrow (\lambda y.\langle t_1,t_2\rangle[\leftarrow y])] \rightsquigarrow\pause\newline
+ u\{x_1\leftarrow \lambda y.t_1[\leftarrow y], x_2\leftarrow \lambda y.t_2[\leftarrow y]\}$
+\end{itemize}
+}
+
+\frame{
+\frametitle{Application Reductions}
+\begin{itemize}
+ \item $u[\leftarrow (t)v] \rightsquigarrow\pause u[\leftarrow t][\leftarrow v]$
+\pause
+ \item $u[x_1,x_2\leftarrow (t)v] \rightsquigarrow\pause\newline
+ u\{x_1\leftarrow (y_1)z_1\}\{x_2\leftarrow (y_2)z_2\}[y_1,y_2\leftarrow t][z_1,z_2\leftarrow v]$
+\pause
+\end{itemize}
+}
+
+\frame{
+\frametitle{Substitution Reductions}
+\begin{itemize}
+ \item $u[\leftarrow t[\leftarrow v]] \rightsquigarrow\pause u[\leftarrow t][\leftarrow v]$
+\pause
+ \item $u[x,y\leftarrow t[\leftarrow v]] \rightsquigarrow\pause u[x,y\leftarrow t][\leftarrow v]$
+\pause
+ \item $u[\leftarrow t[x,y\leftarrow v]] \rightsquigarrow \pause u[\leftarrow t][x,y\leftarrow v]$
+\pause
+ \item $u[x_1,x_2\leftarrow t[y_1,y_2\leftarrow z]] \rightsquigarrow\pause u[x_1,x_2\leftarrow t][y_1,y_2\leftarrow z]$
+\pause
+ \item $u[\leftarrow x][x,y\leftarrow t] \rightsquigarrow \pause u\{y\leftarrow t\}$
+\end{itemize}
+}
+
+\frame{
+\frametitle{Pair and Empty Reductions}
+\begin{itemize}
+ \item $u[\leftarrow \epsilon] \rightsquigarrow\pause u$
+\pause
+ \item $u[x,y\leftarrow \epsilon] \rightsquigarrow\pause u\{x\leftarrow \epsilon, y\leftarrow \epsilon\}$
+\pause
+ \item $u[\leftarrow \langle t_1,t_2\rangle] \rightsquigarrow\pause u[\leftarrow t_1][y\leftarrow t_2]$
+\pause
+ \item $u[x,y\leftarrow \langle t_1,t_2\rangle] \rightsquigarrow\pause u\{x\leftarrow t_1, y\leftarrow t_2\}$
+\pause
+\end{itemize}
+}
+
+% \frame
+% {
+% \frametitle{Step-by-step simulation of $\beta$-reduction}
+% \begin{theorem}
+%  If $\llbracket u\rrbracket \rightsquigarrow_\beta \llbracket v\rrbracket$, then there is a term $t$, such that $u\rightsquigarrow^\star u'\rightsquigarrow_\beta t'\rightsquigarrow^\star t$ and $v\rightsquigarrow^\star t$.
+% \end{theorem}
+% }
+
+\frame
+{
+\frametitle{Future work}
+  \begin{itemize}
+    \item Abstract machine\pause
+    \item Classical logic\pause
+    \item Second order logic
+  \end{itemize}
+}
+\end{document}
